@@ -9,15 +9,15 @@ yellow='\033[0;33m'
 plain='\033[0m'
 
 err() {
-    printf "${red}%s${plain}\n" "$*" >&2
+    sudo printf "${red}%s${plain}\n" "$*" >&2
 }
 
 success() {
-    printf "${green}%s${plain}\n" "$*"
+    sudo printf "${green}%s${plain}\n" "$*"
 }
 
 info() {
-    printf "${yellow}%s${plain}\n" "$*"
+    sudo printf "${yellow}%s${plain}\n" "$*"
 }
 
 sudo() {
@@ -50,7 +50,7 @@ geo_check() {
     ua="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/81.0"
     set -- "$api_list"
     for url in $api_list; do
-        text="$(wget --header="User-Agent: $ua" -T 10 -qO- "$url")"
+        text="$(sudo wget --header="User-Agent: $ua" -T 10 -qO- "$url")"
         endpoint="$(echo "$text" | sed -n 's/.*h=\([^ ]*\).*/\1/p')"
         if echo "$text" | grep -qw 'CN'; then
             isCN=true
@@ -137,11 +137,11 @@ install() {
     if [ -z "$CN" ]; then
         NZ_AGENT_URL="https://${GITHUB_URL}/nezhahq/agent/releases/latest/download/nezha-agent_${os}_${os_arch}.zip"
     else
-        _version=$(wget -T 10 -qO- "https://gitee.com/api/v5/repos/naibahq/agent/releases/latest" | awk -F '"' '{for(i=1;i<=NF;i++){if($i=="tag_name"){print $(i+2)}}}')
+        _version=$(sudo wget -T 10 -qO- "https://gitee.com/api/v5/repos/naibahq/agent/releases/latest" | awk -F '"' '{for(i=1;i<=NF;i++){if($i=="tag_name"){print $(i+2)}}}')
         NZ_AGENT_URL="https://${GITHUB_URL}/naibahq/agent/releases/download/${_version}/nezha-agent_${os}_${os_arch}.zip"
     fi
 
-    _cmd="wget -T 60 -O /tmp/nezha-agent_${os}_${os_arch}.zip $NZ_AGENT_URL >/dev/null 2>&1"
+    _cmd="sudo wget -T 60 -O /tmp/nezha-agent_${os}_${os_arch}.zip $NZ_AGENT_URL >/dev/null 2>&1"
     if ! eval "$_cmd"; then
         err "Download nezha-agent release failed, check your network connectivity"
         exit 1
